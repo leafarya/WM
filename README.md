@@ -3,197 +3,133 @@ library_name: transformers
 tags: []
 ---
 
-# Model Card for Model ID
 
-<!-- Provide a quick summary of what the model is/does. -->
+# Mental Health Therapy Chatbot
 
+**Model Name**: `tanusrich/Mental_Health_Chatbot`  
+**Model Type**: LLaMA-based model fine-tuned for Mental Health Therapy assistance
 
+## Overview
+
+The **Mental Health Therapy Chatbot** is a conversational AI model designed to provide empathetic, non-judgmental support to individuals seeking mental health guidance. This model has been fine-tuned using a carefully curated dataset to offer responses that are considerate, supportive, and structured to simulate therapy-like conversations.
+
+It is ideal for use in mental health support applications where users can receive thoughtful and compassionate replies, especially on topics related to anxiety, loneliness, and general emotional well-being.
 
 ## Model Details
 
-### Model Description
+- **Base Model**: [LLaMA-2-7b](https://huggingface.co/meta-llama/Llama-2-7b)
+- **Fine-Tuned Dataset**: A specialized dataset curated for mental health conversations.
+- **Purpose**: Provide empathetic, supportive responses for individuals seeking mental health assistance.
+- **Language**: English
 
-<!-- Provide a longer summary of what this model is. -->
+## Model Architecture
 
-This is the model card of a 🤗 transformers model that has been pushed on the Hub. This model card has been automatically generated.
+This model is based on **LLaMA-2-7b** architecture. It is a causal language model (CausalLM), which generates responses based on the input prompt by predicting the next word in the sequence.
 
-- **Developed by:** [More Information Needed]
-- **Funded by [optional]:** [More Information Needed]
-- **Shared by [optional]:** [More Information Needed]
-- **Model type:** [More Information Needed]
-- **Language(s) (NLP):** [More Information Needed]
-- **License:** [More Information Needed]
-- **Finetuned from model [optional]:** [More Information Needed]
+### Model Capabilities
 
-### Model Sources [optional]
+- Understands mental health queries and provides compassionate responses.
+- Helps users navigate feelings such as loneliness, anxiety, and stress.
+- Suggests coping strategies based on the context of the conversation.
+- Can handle complex and emotionally charged topics with care.
 
-<!-- Provide the basic links for the model. -->
+## Usage
 
-- **Repository:** [More Information Needed]
-- **Paper [optional]:** [More Information Needed]
-- **Demo [optional]:** [More Information Needed]
+To use this model for generating mental health support responses, you can load it with the Hugging Face `transformers` library.
 
-## Uses
+### Loading the Model
 
-<!-- Address questions around how the model is intended to be used, including the foreseeable users of the model and those affected by the model. -->
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
 
-### Direct Use
+# Load the model and tokenizer
+model_name = "tanusrich/Mental_Health_Chatbot"
+model = AutoModelForCausalLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-<!-- This section is for the model use without fine-tuning or plugging into a larger ecosystem/app. -->
+# Move the model to the appropriate device (CPU or GPU)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model.to(device)
 
-[More Information Needed]
+# Generate a response
+def generate_response(user_input):
+    inputs = tokenizer(user_input, return_tensors="pt").to(device)
+    with torch.no_grad():
+        output = model.generate(
+            **inputs,
+            max_new_tokens=200,
+            temperature=0.7,
+            top_k=50,
+            top_p=0.9,
+            repetition_penalty=1.2,
+            pad_token_id=tokenizer.eos_token_id
+        )
+    response = tokenizer.decode(output[0], skip_special_tokens=True)
+    return response
 
-### Downstream Use [optional]
+# Example interaction
+user_input = "I'm feeling lonely and anxious. What can I do?"
+response = generate_response(user_input)
+print("Chatbot: ", response)
+```
 
-<!-- This section is for the model use when fine-tuned for a task, or when plugged into a larger ecosystem/app -->
+### Model Parameters
 
-[More Information Needed]
+- **Max Tokens**: 200
+- **Temperature**: 0.7 (controls the randomness of predictions)
+- **Top-k**: 50 (filters to consider the top 50 tokens by probability)
+- **Top-p**: 0.9 (nucleus sampling to filter based on cumulative probability)
+- **Repetition Penalty**: 1.2 (penalizes repeated phrases or words)
 
-### Out-of-Scope Use
+### Example Queries
 
-<!-- This section addresses misuse, malicious use, and uses that the model will not work well for. -->
+- "I'm feeling lonely and isolated. Can you help me?"
+- "I often get anxious before going to work. What can I do to feel better?"
+- "What are some coping strategies for dealing with stress?"
 
-[More Information Needed]
+## Fine-Tuning
 
-## Bias, Risks, and Limitations
+This model was fine-tuned using the **QLoRA (Quantized LoRA)** method, leveraging LoRA (Low-Rank Adaptation) layers to allow efficient fine-tuning on resource-constrained hardware.
 
-<!-- This section is meant to convey both technical and sociotechnical limitations. -->
+### Fine-Tuning Configuration:
 
-[More Information Needed]
+- **LoRA attention dimension (`lora_r`)**: 64
+- **LoRA scaling factor (`lora_alpha`)**: 16
+- **LoRA dropout**: 0.1
+- **Precision**: 4-bit quantization
+- **Optimizer**: Paged AdamW 32-bit
 
-### Recommendations
+## Intended Use
 
-<!-- This section is meant to convey recommendations with respect to the bias, risk, and technical limitations. -->
+This model is designed to assist in non-clinical settings where users might seek empathetic conversation and mental health support. It is not intended to replace professional mental health services or clinical diagnosis.
 
-Users (both direct and downstream) should be made aware of the risks, biases and limitations of the model. More information needed for further recommendations.
+## Limitations
 
-## How to Get Started with the Model
+- **Non-clinical**: This model is not a substitute for professional therapy or mental health counseling. Users in need of medical attention should seek licensed professionals.
+- **Emotionally complex conversations**: While the model attempts to provide helpful and compassionate responses, it might not always fully grasp the complexity of certain topics.
+- **Bias**: Like any language model, responses might inadvertently reflect biases present in the training data. Usage in sensitive contexts should be approached cautiously.
 
-Use the code below to get started with the model.
+## Ethical Considerations
 
-[More Information Needed]
+Mental health is a sensitive area, and while this model attempts to provide thoughtful and supportive responses, it is essential to ensure that users understand it is not a replacement for professional help. Users should be encouraged to seek assistance from licensed professionals for serious mental health issues.
 
-## Training Details
+## Citation
 
-### Training Data
+If you use this model, please cite the LLaMA-2 model and the fine-tuning process as follows:
 
-<!-- This should link to a Dataset Card, perhaps with a short stub of information on what the training data is all about as well as documentation related to data pre-processing or additional filtering. -->
+```plaintext
+@article{LLaMA2,
+  title={LLaMA 2: Open Foundation and Fine-Tuned Chat Models},
+  author={Meta AI},
+  year={2023}
+}
+
+@misc{tanusrich2024MentalHealthChatbot,
+  author = {Tanusri},
+  title = {Mental Health Therapy Chatbot},
+  year = {2024},
+  url = {https://huggingface.co/tanusrich/Mental_Health_Chatbot}
+}
+```
 
-[More Information Needed]
-
-### Training Procedure
-
-<!-- This relates heavily to the Technical Specifications. Content here should link to that section when it is relevant to the training procedure. -->
-
-#### Preprocessing [optional]
-
-[More Information Needed]
-
-
-#### Training Hyperparameters
-
-- **Training regime:** [More Information Needed] <!--fp32, fp16 mixed precision, bf16 mixed precision, bf16 non-mixed precision, fp16 non-mixed precision, fp8 mixed precision -->
-
-#### Speeds, Sizes, Times [optional]
-
-<!-- This section provides information about throughput, start/end time, checkpoint size if relevant, etc. -->
-
-[More Information Needed]
-
-## Evaluation
-
-<!-- This section describes the evaluation protocols and provides the results. -->
-
-### Testing Data, Factors & Metrics
-
-#### Testing Data
-
-<!-- This should link to a Dataset Card if possible. -->
-
-[More Information Needed]
-
-#### Factors
-
-<!-- These are the things the evaluation is disaggregating by, e.g., subpopulations or domains. -->
-
-[More Information Needed]
-
-#### Metrics
-
-<!-- These are the evaluation metrics being used, ideally with a description of why. -->
-
-[More Information Needed]
-
-### Results
-
-[More Information Needed]
-
-#### Summary
-
-
-
-## Model Examination [optional]
-
-<!-- Relevant interpretability work for the model goes here -->
-
-[More Information Needed]
-
-## Environmental Impact
-
-<!-- Total emissions (in grams of CO2eq) and additional considerations, such as electricity usage, go here. Edit the suggested text below accordingly -->
-
-Carbon emissions can be estimated using the [Machine Learning Impact calculator](https://mlco2.github.io/impact#compute) presented in [Lacoste et al. (2019)](https://arxiv.org/abs/1910.09700).
-
-- **Hardware Type:** [More Information Needed]
-- **Hours used:** [More Information Needed]
-- **Cloud Provider:** [More Information Needed]
-- **Compute Region:** [More Information Needed]
-- **Carbon Emitted:** [More Information Needed]
-
-## Technical Specifications [optional]
-
-### Model Architecture and Objective
-
-[More Information Needed]
-
-### Compute Infrastructure
-
-[More Information Needed]
-
-#### Hardware
-
-[More Information Needed]
-
-#### Software
-
-[More Information Needed]
-
-## Citation [optional]
-
-<!-- If there is a paper or blog post introducing the model, the APA and Bibtex information for that should go in this section. -->
-
-**BibTeX:**
-
-[More Information Needed]
-
-**APA:**
-
-[More Information Needed]
-
-## Glossary [optional]
-
-<!-- If relevant, include terms and calculations in this section that can help readers understand the model or model card. -->
-
-[More Information Needed]
-
-## More Information [optional]
-
-[More Information Needed]
-
-## Model Card Authors [optional]
-
-[More Information Needed]
-
-## Model Card Contact
-
-[More Information Needed]
