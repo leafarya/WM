@@ -30,3 +30,8 @@ async def chat(request: ChatRequest):
         )
     response = tokenizer.decode(output[0], skip_special_tokens=True)
     return {"response": response}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
