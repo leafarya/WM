@@ -1,7 +1,9 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+import os
+import uvicorn
 
 app = FastAPI()
 
@@ -34,4 +36,8 @@ async def chat(request: ChatRequest):
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))  # Use the PORT environment variable if set
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
 
